@@ -1,0 +1,11 @@
+// Prisma schema for Golden Yarns MCP Agent
+// This schema defines the core business entities for yarn inventory management
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
