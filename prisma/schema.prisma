@@ -79,8 +79,32 @@ model StockLot {
   yarnCount   YarnCount   @relation(fields: [yarnCountId], references: [id])
   color       Color       @relation(fields: [colorId], references: [id])
 
+  // Stock movements tracking
+  movements   StockMovement[] @relation("LotMovements")
+
   @@index([lotNumber])
   @@index([yarnTypeId, yarnCountId, colorId])
   @@index([currentStatus])
   @@index([purchaseDate])
+}
+
+// Stock Movement - tracks every movement of stock (in/out/adjustment)
+model StockMovement {
+  id           Int      @id @default(autoincrement())
+  lotId        Int
+  movementType String   // IN (purchase/production), OUT (sale/consignment), ADJUSTMENT, TRANSFER
+  quantity     Float    // Quantity moved (in kg or units)
+  referenceId  String?  // Reference to related document (purchase order, sales invoice, etc.)
+  referenceType String? // e.g., "PURCHASE", "SALE", "ADJUSTMENT"
+  movementDate DateTime @default(now())
+  notes        String?
+  createdAt    DateTime @default(now())
+
+  // Relations
+  lot          StockLot @relation("LotMovements", fields: [lotId], references: [id])
+
+  @@index([lotId])
+  @@index([movementType])
+  @@index([movementDate])
+  @@index([referenceType, referenceId])
 }
