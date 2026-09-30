@@ -8,6 +8,7 @@ import {
 import {
   createCustomerSchema,
   updateCustomerSchema,
+  setCustomerStatusSchema,
 } from '../utils/customer.validation';
 
 export class CustomerService {
@@ -115,5 +116,45 @@ export class CustomerService {
       }
       return { success: false, message: 'An unknown error occurred while updating the customer' };
     }
+  }
+
+  /**
+   * Activate or deactivate customer
+   */
+  async setCustomerStatus(id: number, isActive: boolean) {
+    try {
+      setCustomerStatusSchema.parse({ id, isActive });
+
+      const customer = await this.customerRepository.getCustomerById(id);
+      if (!customer) {
+        return { success: false, message: `Customer with ID ${id} not found.` };
+      }
+
+      const updated = isActive
+        ? await this.customerRepository.activateCustomer(id)
+        : await this.customerRepository.deactivateCustomer(id);
+
+      return {
+        success: true,
+        message: `Customer ${isActive ? 'activated' : 'deactivated'} successfully`,
+        data: updated,
+      };
+    } catch (error) {
+      return { success: false, message: 'Failed to update customer status' };
+    }
+  }
+
+  /**
+   * Soft-delete / deactivate a customer
+   */
+  async deactivateCustomer(id: number) {
+    return this.setCustomerStatus(id, false);
+  }
+
+  /**
+   * Activate a customer
+   */
+  async activateCustomer(id: number) {
+    return this.setCustomerStatus(id, true);
   }
 }
