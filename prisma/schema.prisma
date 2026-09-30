@@ -18,6 +18,9 @@ model YarnType {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relation to stock lots
+  lots      StockLot[]
+
   @@index([name])
 }
 
@@ -28,6 +31,9 @@ model YarnCount {
   description String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relation to stock lots
+  lots      StockLot[]
 
   @@index([value])
 }
@@ -40,5 +46,41 @@ model Color {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Relation to stock lots
+  lots      StockLot[]
+
   @@index([name])
+}
+
+// Stock Lot - represents a specific batch/lot of yarn with full traceability
+model StockLot {
+  id                 Int      @id @default(autoincrement())
+  lotNumber          String   @unique // Unique lot identifier
+  yarnTypeId         Int
+  yarnCountId        Int
+  colorId            Int
+  netWeight          Float    // Net weight in kg
+  grossWeight        Float    // Gross weight in kg (including packaging)
+  quantity           Int      // Number of packages/bales, if applicable
+  unitOfMeasurement  String   // e.g., "kg", "bales", "pieces"
+  purchaseCost       Decimal  // Total purchase cost for this lot
+  sellingPrice       Decimal? // Suggested selling price (can be null if not set)
+  purchaseDate       DateTime
+  manufacturingDate  DateTime? // If applicable
+  expiryDate         DateTime? // For perishable yarns
+  warehouseLocation  String?  // Warehouse/bin location
+  currentStatus      String   @default("IN_STOCK") // IN_STOCK, SOLD, RESERVED, IN_TRANSIT, DAMAGED
+  notes              String?  // Any additional notes
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  // Relations
+  yarnType    YarnType    @relation(fields: [yarnTypeId], references: [id])
+  yarnCount   YarnCount   @relation(fields: [yarnCountId], references: [id])
+  color       Color       @relation(fields: [colorId], references: [id])
+
+  @@index([lotNumber])
+  @@index([yarnTypeId, yarnCountId, colorId])
+  @@index([currentStatus])
+  @@index([purchaseDate])
 }
