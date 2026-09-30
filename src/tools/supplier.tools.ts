@@ -6,6 +6,7 @@ import {
   listSuppliersSchema,
   updateSupplierSchema,
   getSupplierStatementSchema,
+  setSupplierStatusSchema,
 } from '../utils/supplier.validation';
 
 const supplierService = new SupplierService();
@@ -158,6 +159,40 @@ export const supplierTools = {
           startDate: validatedArgs.startDate,
           endDate: validatedArgs.endDate,
         });
+
+        if (!result.success) {
+          return {
+            content: [{ type: 'text', text: JSON.stringify({ success: false, message: result.message }, null, 2) }],
+            isError: true,
+          };
+        }
+
+        return {
+          content: [{ type: 'text', text: JSON.stringify({ success: true, message: result.message, data: result.data }, null, 2) }],
+        };
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return {
+            content: [{ type: 'text', text: JSON.stringify({ success: false, message: 'Validation failed', errors: error.errors }, null, 2) }],
+            isError: true,
+          };
+        }
+        return {
+          content: [{ type: 'text', text: JSON.stringify({ success: false, message: 'Internal server error' }, null, 2) }],
+          isError: true,
+        };
+      }
+    },
+  },
+
+  setSupplierStatus: {
+    name: 'set_supplier_status',
+    description: 'Activate or deactivate a supplier (soft deletion / status management)',
+    inputSchema: setSupplierStatusSchema.shape,
+    handler: async (args: z.infer<typeof setSupplierStatusSchema>) => {
+      try {
+        const validatedArgs = setSupplierStatusSchema.parse(args);
+        const result = await supplierService.setSupplierStatus(validatedArgs.id, validatedArgs.isActive);
 
         if (!result.success) {
           return {

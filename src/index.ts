@@ -8,8 +8,9 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import { allStockLotTools } from './tools/stockLot.tools';
 import { allStockMovementTools } from './tools/stockMovement.tools';
+import { allSupplierTools } from './tools/supplier.tools';
 
-const allTools = [...allStockLotTools, ...allStockMovementTools];
+const allTools = [...allStockLotTools, ...allStockMovementTools, ...allSupplierTools];
 
 // Create the MCP server
 const server = new Server(
