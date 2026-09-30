@@ -160,7 +160,7 @@ export class CustomerService {
   }
 
   /**
-   * Get financial summary for a customer
+   * Get financial summary for a customer (all-time totals)
    */
   async getCustomerSummary(id: number) {
     try {
@@ -183,8 +183,6 @@ export class CustomerService {
         0
       );
 
-      const outstandingReceivable = totalSales - totalPayments;
-
       const summary: CustomerSummary = {
         customerId: customerWithRelations.id,
         customerName: customerWithRelations.name,
@@ -199,7 +197,7 @@ export class CustomerService {
         isActive: customerWithRelations.isActive,
         totalSales,
         totalPayments,
-        outstandingReceivable,
+        outstandingReceivable: totalSales - totalPayments,
       };
 
       return {
@@ -209,6 +207,84 @@ export class CustomerService {
       };
     } catch (error) {
       return { success: false, message: 'Failed to retrieve customer summary' };
+    }
+  }
+
+  /**
+   * Get financial statement for a customer
+   */
+  async getCustomerStatement(
+    customerId: number,
+    startDate?: string,
+    endDate?: string
+  ) {
+    try {
+      const dateRange = {
+        startDate: startDate ? new Date(startDate) : undefined,
+        endDate: endDate ? new Date(endDate) : undefined,
+      };
+
+      const customerWithRelations = await this.customerRepository.getCustomerWithRelations(
+        customerId,
+        dateRange
+      );
+
+      if (!customerWithRelations) {
+        return { success: false, message: `Customer with ID ${customerId} not found.` };
+      }
+
+      // Calculate summary
+      const totalSales = customerWithRelations.sales.reduce(
+        (sum, sale) => sum + Number(sale.totalAmount || 0),
+        0
+      );
+
+      const totalPayments = customerWithRelations.payments.reduce(
+        (sum, payment) => sum + Number(payment.amount || 0),
+        0
+      );
+
+      const outstandingReceivable = totalSales - totalPayments;
+
+      const summary = {
+        customerId: customerWithRelations.id,
+        customerName: customerWithRelations.name,
+        company: customerWithRelations.company,
+        contactPerson: customerWithRelations.contactPerson,
+        email: customerWithRelations.email,
+        phone: customerWithRelations.phone,
+        taxId: customerWithRelations.taxId,
+        creditLimit: customerWithRelations.creditLimit ? Number(customerWithRelations.creditLimit) : null,
+        isActive: customerWithRelations.isActive,
+        totalSales,
+        totalPayments,
+        outstandingReceivable,
+      };
+
+      // Format data
+      return {
+        success: true,
+        message: 'Customer statement generated',
+        data: {
+          customer: {
+            ...customerWithRelations,
+            creditLimit: customerWithRelations.creditLimit
+              ? Number(customerWithRelations.creditLimit)
+              : null,
+          },
+          summary,
+          sales: customerWithRelations.sales.map((s) => ({
+            ...s,
+            totalAmount: Number(s.totalAmount),
+          })),
+          payments: customerWithRelations.payments.map((p) => ({
+            ...p,
+            amount: Number(p.amount),
+          })),
+        },
+      };
+    } catch (error) {
+      return { success: false, message: 'Failed to generate customer statement' };
     }
   }
 }

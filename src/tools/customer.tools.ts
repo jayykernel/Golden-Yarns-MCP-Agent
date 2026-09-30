@@ -6,6 +6,7 @@ import {
   listCustomersSchema,
   updateCustomerSchema,
   setCustomerStatusSchema,
+  getCustomerStatementSchema,
 } from '../utils/customer.validation';
 
 const customerService = new CustomerService();
@@ -211,6 +212,44 @@ export const customerManagementTools = {
           content: [{ type: 'text', text: JSON.stringify({ success: false, message: 'Internal server error' }, null, 2) }],
           isError: true,
         };
+      }
+    },
+  },
+
+  getCustomerStatement: {
+    name: 'get_customer_statement',
+    description: 'Get a financial statement for a customer with sales and payment history',
+    inputSchema: getCustomerStatementSchema.shape,
+    handler: async (args: z.infer<typeof getCustomerStatementSchema>) => {
+      try {
+        const validatedArgs = getCustomerStatementSchema.parse(args);
+        const result = await customerService.getCustomerStatement(
+          validatedArgs.customerId,
+          validatedArgs.startDate,
+          validatedArgs.endDate
+        );
+
+        if (!result.success) {
+          return {
+            content: [{ type: 'text', text: JSON.stringify({ success: false, message: result.message }, null, 2) }],
+            isError: true,
+          };
+        }
+
+        return {
+          content: [{ type: 'text', text: JSON.stringify({ success: true, message: result.message, data: result.data }, null, 2) }],
+        };
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return {
+            content: [{ type: 'text', text: JSON.stringify({ success: false, message: 'Validation failed', errors: error.errors }, null, 2) }],
+            isError: true,
+          };
+        }
+        return {
+          content: [{ type: 'text', text: JSON.stringify({ success: false, message: 'Internal server error' }, null, 2) }],
+          isError: true,
+          };
       }
     },
   },
