@@ -16,6 +16,7 @@ export interface CreateCustomerInput {
   address?: string;
   taxId?: string;
   creditLimit?: number;
+  isActive?: boolean;
 }
 
 export interface UpdateCustomerInput {
@@ -28,6 +29,7 @@ export interface UpdateCustomerInput {
   address?: string;
   taxId?: string;
   creditLimit?: number;
+  isActive?: boolean;
 }
 
 export interface GetCustomersFilter {
@@ -46,6 +48,7 @@ export interface CustomerSummary {
   phone?: string | null;
   taxId?: string | null;
   creditLimit?: number | null;
+  isActive: boolean;
   totalSales: number;
   totalPayments: number;
   outstandingReceivable: number;

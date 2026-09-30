@@ -180,6 +180,40 @@ export const customerManagementTools = {
       }
     },
   },
+
+  getCustomerSummary: {
+    name: 'get_customer_summary',
+    description: 'Get total sales, payments, and outstanding receivable balance for a customer',
+    inputSchema: getCustomerSchema.shape,
+    handler: async (args: z.infer<typeof getCustomerSchema>) => {
+      try {
+        const validatedArgs = getCustomerSchema.parse(args);
+        const result = await customerService.getCustomerSummary(validatedArgs.id);
+
+        if (!result.success) {
+          return {
+            content: [{ type: 'text', text: JSON.stringify({ success: false, message: result.message }, null, 2) }],
+            isError: true,
+          };
+        }
+
+        return {
+          content: [{ type: 'text', text: JSON.stringify({ success: true, message: result.message, data: result.data }, null, 2) }],
+        };
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return {
+            content: [{ type: 'text', text: JSON.stringify({ success: false, message: 'Validation failed', errors: error.errors }, null, 2) }],
+            isError: true,
+          };
+        }
+        return {
+          content: [{ type: 'text', text: JSON.stringify({ success: false, message: 'Internal server error' }, null, 2) }],
+          isError: true,
+        };
+      }
+    },
+  },
 };
 
 export const allCustomerTools = Object.values(customerManagementTools);

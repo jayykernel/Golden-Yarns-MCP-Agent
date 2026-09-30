@@ -4,6 +4,7 @@ import {
   CreateCustomerInput,
   UpdateCustomerInput,
   GetCustomersFilter,
+  CustomerSummary,
 } from '../types/customer.types';
 import {
   createCustomerSchema,
@@ -156,5 +157,58 @@ export class CustomerService {
    */
   async activateCustomer(id: number) {
     return this.setCustomerStatus(id, true);
+  }
+
+  /**
+   * Get financial summary for a customer
+   */
+  async getCustomerSummary(id: number) {
+    try {
+      if (!id || id <= 0) {
+        return { success: false, message: 'Invalid customer ID' };
+      }
+
+      const customerWithRelations = await this.customerRepository.getCustomerWithRelations(id);
+      if (!customerWithRelations) {
+        return { success: false, message: `Customer with ID ${id} not found.` };
+      }
+
+      const totalSales = customerWithRelations.sales.reduce(
+        (sum, sale) => sum + Number(sale.totalAmount || 0),
+        0
+      );
+
+      const totalPayments = customerWithRelations.payments.reduce(
+        (sum, payment) => sum + Number(payment.amount || 0),
+        0
+      );
+
+      const outstandingReceivable = totalSales - totalPayments;
+
+      const summary: CustomerSummary = {
+        customerId: customerWithRelations.id,
+        customerName: customerWithRelations.name,
+        company: customerWithRelations.company,
+        contactPerson: customerWithRelations.contactPerson,
+        email: customerWithRelations.email,
+        phone: customerWithRelations.phone,
+        taxId: customerWithRelations.taxId,
+        creditLimit: customerWithRelations.creditLimit
+          ? Number(customerWithRelations.creditLimit)
+          : null,
+        isActive: customerWithRelations.isActive,
+        totalSales,
+        totalPayments,
+        outstandingReceivable,
+      };
+
+      return {
+        success: true,
+        message: 'Customer summary retrieved successfully',
+        data: summary,
+      };
+    } catch (error) {
+      return { success: false, message: 'Failed to retrieve customer summary' };
+    }
   }
 }
