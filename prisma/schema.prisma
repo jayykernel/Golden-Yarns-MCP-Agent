@@ -52,6 +52,24 @@ model Color {
   @@index([name])
 }
 
+// Supplier information
+model Supplier {
+  id            Int      @id @default(autoincrement())
+  name          String
+  contactPerson String?
+  email         String?
+  phone         String?
+  address       String?
+  taxId         String?  // For tax purposes
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  purchaseLots  StockLot[] @relation("PurchaseLots")
+
+  @@index([name])
+}
+
 // Stock Lot - represents a specific batch/lot of yarn with full traceability
 model StockLot {
   id                 Int      @id @default(autoincrement())
@@ -83,6 +101,7 @@ model StockLot {
 
   // Stock movements tracking
   movements   StockMovement[] @relation("LotMovements")
+  saleItems   SaleItem[] @relation("SaleItemLot")
 
   @@index([lotNumber])
   @@index([yarnTypeId, yarnCountId, colorId])
@@ -111,24 +130,6 @@ model StockMovement {
   @@index([referenceType, referenceId])
 }
 
-// Supplier information
-model Supplier {
-  id            Int      @id @default(autoincrement())
-  name          String
-  contactPerson String?
-  email         String?
-  phone         String?
-  address       String?
-  taxId         String?  // For tax purposes
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  // Relations
-  purchaseLots  StockLot[] @relation("PurchaseLots")
-
-  @@index([name])
-}
-
 // Customer information
 model Customer {
   id           Int      @id @default(autoincrement())
@@ -142,5 +143,49 @@ model Customer {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // Relations
+  sales        Sale[]   @relation("CustomerSales")
+
   @@index([name])
+}
+
+// Sale / Invoice
+model Sale {
+  id            Int      @id @default(autoincrement())
+  invoiceNumber String   @unique // Invoice number
+  customerId    Int
+  saleDate      DateTime @default(now())
+  dueDate       DateTime? // Payment due date
+  totalAmount   Decimal  // Total invoice amount
+  status        String   @default("PENDING") // PENDING, PAID, PARTIAL, OVERDUE, CANCELLED
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  customer    Customer @relation("CustomerSales", fields: [customerId], references: [id])
+  items       SaleItem[] @relation("SaleItems")
+
+  @@index([invoiceNumber])
+  @@index([customerId])
+  @@index([saleDate])
+  @@index([status])
+}
+
+// Sale Item - line items in a sale/invoice
+model SaleItem {
+  id         Int      @id @default(autoincrement())
+  saleId     Int
+  lotId      Int      // Which stock lot was sold
+  quantity   Float    // Quantity sold (in kg or units)
+  unitPrice  Decimal  // Price per unit
+  totalPrice Decimal  // Quantity * unitPrice
+  notes      String?
+
+  // Relations
+  sale   Sale @relation("SaleItems", fields: [saleId], references: [id])
+  lot    StockLot @relation("SaleItemLot", fields: [lotId], references: [id])
+
+  @@index([saleId])
+  @@index([lotId])
 }
