@@ -2,10 +2,12 @@ import { Customer } from '@prisma/client';
 import { CustomerRepository } from '../repositories/customer.repository';
 import {
   CreateCustomerInput,
+  UpdateCustomerInput,
   GetCustomersFilter,
 } from '../types/customer.types';
 import {
   createCustomerSchema,
+  updateCustomerSchema,
 } from '../utils/customer.validation';
 
 export class CustomerService {
@@ -75,6 +77,43 @@ export class CustomerService {
       };
     } catch (error) {
       return { success: false, message: 'Failed to list customers' };
+    }
+  }
+
+  /**
+   * Update an existing customer
+   */
+  async updateCustomer(input: UpdateCustomerInput) {
+    try {
+      const validatedData = updateCustomerSchema.parse(input);
+
+      // Verify existence
+      const existingCustomer = await this.customerRepository.getCustomerById(validatedData.id);
+      if (!existingCustomer) {
+        return { success: false, message: `Customer with ID ${validatedData.id} not found.` };
+      }
+
+      // Check name collision if name is updated
+      if (validatedData.name && validatedData.name !== existingCustomer.name) {
+        const duplicate = await this.customerRepository.getCustomerByName(validatedData.name);
+        if (duplicate) {
+          return { success: false, message: `Customer with name '${validatedData.name}' already exists.` };
+        }
+      }
+
+      const { id, ...updateData } = validatedData;
+      const updated = await this.customerRepository.updateCustomer(id, updateData);
+
+      return {
+        success: true,
+        message: 'Customer updated successfully',
+        data: updated,
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        return { success: false, message: `Failed to update customer: ${error.message}` };
+      }
+      return { success: false, message: 'An unknown error occurred while updating the customer' };
     }
   }
 }
