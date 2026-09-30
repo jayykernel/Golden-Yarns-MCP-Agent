@@ -78,6 +78,8 @@ model StockLot {
   yarnType    YarnType    @relation(fields: [yarnTypeId], references: [id])
   yarnCount   YarnCount   @relation(fields: [yarnCountId], references: [id])
   color       Color       @relation(fields: [colorId], references: [id])
+  supplier    Supplier?   @relation("PurchaseLots", fields: [supplierId], references: [id])
+  supplierId  Int?
 
   // Stock movements tracking
   movements   StockMovement[] @relation("LotMovements")
@@ -107,4 +109,38 @@ model StockMovement {
   @@index([movementType])
   @@index([movementDate])
   @@index([referenceType, referenceId])
+}
+
+// Supplier information
+model Supplier {
+  id            Int      @id @default(autoincrement())
+  name          String
+  contactPerson String?
+  email         String?
+  phone         String?
+  address       String?
+  taxId         String?  // For tax purposes
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  purchaseLots  StockLot[] @relation("PurchaseLots")
+
+  @@index([name])
+}
+
+// Customer information
+model Customer {
+  id           Int      @id @default(autoincrement())
+  name         String
+  contactPerson String?
+  email        String?
+  phone        String?
+  address      String?
+  taxId        String?  // For tax purposes
+  creditLimit  Decimal? // Credit limit for the customer
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([name])
 }
