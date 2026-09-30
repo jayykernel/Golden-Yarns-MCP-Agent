@@ -41,10 +41,12 @@ export const updateStockLotSchema = z.object({
   supplierId: z.number().int().positive('Supplier ID must be a positive integer').optional(),
 });
 
-export const getStockLotSchema = z.object({
+export const getStockLotShapeSchema = z.object({
   id: z.number().int().positive('Stock lot ID must be a positive integer').optional(),
   lotNumber: z.string().optional(),
-}).refine(
+});
+
+export const getStockLotSchema = getStockLotShapeSchema.refine(
   (data) => data.id !== undefined || data.lotNumber !== undefined,
   { message: 'Either id or lotNumber must be provided' }
 );

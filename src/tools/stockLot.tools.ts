@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { StockLotService } from '../services/stockLot.service';
-import { createStockLotSchema, getStockLotSchema, getStockLotsSchema, updateStockLotSchema, deleteStockLotSchema, getAvailableStockSchema } from '../utils/stockLot.validation';
+import { createStockLotSchema, getStockLotSchema, getStockLotsSchema, updateStockLotSchema, deleteStockLotSchema, getAvailableStockSchema, getStockLotShapeSchema } from '../utils/stockLot.validation';
 
 // Initialize service
 const stockLotService = new StockLotService();
@@ -82,7 +82,7 @@ export const stockLotTools = {
   getStockLot: {
     name: 'get_stock_lot',
     description: 'Retrieve a stock lot by ID or lot number',
-    inputSchema: getStockLotSchema.shape,
+    inputSchema: getStockLotShapeSchema.shape,
     handler: async (args: z.infer<typeof getStockLotSchema>) => {
       try {
         // Validate input
