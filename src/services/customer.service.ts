@@ -2,6 +2,7 @@ import { Customer } from '@prisma/client';
 import { CustomerRepository } from '../repositories/customer.repository';
 import {
   CreateCustomerInput,
+  GetCustomersFilter,
 } from '../types/customer.types';
 import {
   createCustomerSchema,
@@ -35,6 +36,45 @@ export class CustomerService {
         return { success: false, message: `Failed to create customer: ${error.message}` };
       }
       return { success: false, message: 'An unknown error occurred while creating the customer' };
+    }
+  }
+
+  /**
+   * Get a customer by ID
+   */
+  async getCustomerById(id: number) {
+    try {
+      if (!id || id <= 0) {
+        return { success: false, message: 'Invalid customer ID' };
+      }
+
+      const customer = await this.customerRepository.getCustomerById(id);
+      if (!customer) {
+        return { success: false, message: `Customer with ID ${id} not found.` };
+      }
+
+      return { success: true, message: 'Customer retrieved successfully', data: customer };
+    } catch (error) {
+      return { success: false, message: 'Failed to retrieve customer' };
+    }
+  }
+
+  /**
+   * List customers with optional filtering
+   */
+  async listCustomers(filters: GetCustomersFilter = {}) {
+    try {
+      const customers = await this.customerRepository.getCustomers(filters);
+      const totalCount = await this.customerRepository.getCustomerCount(filters);
+
+      return {
+        success: true,
+        message: 'Customers retrieved successfully',
+        data: customers,
+        count: totalCount,
+      };
+    } catch (error) {
+      return { success: false, message: 'Failed to list customers' };
     }
   }
 }
