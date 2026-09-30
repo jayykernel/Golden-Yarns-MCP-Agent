@@ -66,6 +66,8 @@ model Supplier {
 
   // Relations
   purchaseLots  StockLot[] @relation("PurchaseLots")
+  supplierPayments Payment[] @relation("SupplierPayments") // Payments to supplier
+  suppliedExpenses Expense[] @relation("ExpenseSupplier") // Expenses payable to supplier
 
   @@index([name])
 }
@@ -145,6 +147,7 @@ model Customer {
 
   // Relations
   sales        Sale[]   @relation("CustomerSales")
+  payments     Payment[] @relation("CustomerPayments")
 
   @@index([name])
 }
@@ -165,6 +168,7 @@ model Sale {
   // Relations
   customer    Customer @relation("CustomerSales", fields: [customerId], references: [id])
   items       SaleItem[] @relation("SaleItems")
+  payments    Payment[] @relation("SalePayments")
 
   @@index([invoiceNumber])
   @@index([customerId])
@@ -188,4 +192,56 @@ model SaleItem {
 
   @@index([saleId])
   @@index([lotId])
+}
+
+// Payment - records payments received or made
+model Payment {
+  id          Int      @id @default(autoincrement())
+  amount      Decimal
+  paymentDate DateTime @default(now())
+  paymentMethod String // e.g., "CASH", "BANK_TRANSFER", "CHEQUE", "UPI"
+  reference   String?  // Cheque number, transaction ID, etc.
+  status      String   @default("CLEARED") // PENDING, CLEARED, BOUNCED
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations - polymorphic: can be related to a sale (customer payment) or supplier (payment to supplier)
+  saleId      Int?     // If payment is for a sale (customer payment)
+  supplierId  Int?     // If payment is to a supplier
+  expenseId   Int?     // If payment is for an expense
+
+  // Relations
+  sale        Sale?    @relation("SalePayments", fields: [saleId], references: [id])
+  supplier    Supplier? @relation("SupplierPayments", fields: [supplierId], references: [id])
+  expense     Expense?  @relation("ExpensePayments", fields: [expenseId], references: [id])
+  customer    Customer? @relation("CustomerPayments", fields: [saleId], references: [id]) // For customer payments via sale
+
+  @@index([saleId])
+  @@index([supplierId])
+  @@index([expenseId])
+  @@index([paymentDate])
+  @@index([status])
+}
+
+// Expense - business expenses
+model Expense {
+  id          Int      @id @default(autoincrement())
+  description String
+  amount      Decimal
+  expenseDate DateTime @default(now())
+  category    String   // e.g., "RENT", "SALARY", "UTILITIES", "TRANSPORT"
+  supplierId  Int?     // If expense is payable to a supplier
+  status      String   @default("PENDING") // PENDING, PAID, PARTIAL
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  supplier    Supplier? @relation("ExpenseSupplier", fields: [supplierId], references: [id])
+  payments    Payment[] @relation("ExpensePayments")
+
+  @@index([expenseDate])
+  @@index([category])
+  @@index([status])
 }
