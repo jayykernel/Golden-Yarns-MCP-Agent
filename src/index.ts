@@ -7,6 +7,9 @@ import {
   CallToolRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { allStockLotTools } from './tools/stockLot.tools';
+import { allStockMovementTools } from './tools/stockMovement.tools';
+
+const allTools = [...allStockLotTools, ...allStockMovementTools];
 
 // Create the MCP server
 const server = new Server(
@@ -46,7 +49,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: [],
         },
       },
-      ...allStockLotTools.map(tool => ({
+      ...allTools.map(tool => ({
         name: tool.name,
         description: tool.description,
         inputSchema: {
@@ -70,8 +73,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     };
   }
 
-  // Find the matching stock lot tool
-  const tool = allStockLotTools.find(t => t.name === request.params.name);
+  // Find the matching tool
+  const tool = allTools.find(t => t.name === request.params.name);
   if (tool) {
     try {
       return await tool.handler(request.params.arguments as any);
