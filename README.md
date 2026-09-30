@@ -16,15 +16,30 @@ An enterprise Model Context Protocol (MCP) server for managing yarn inventory, s
 src/
 ├── index.ts                     # MCP Server initialization & stdio transport
 ├── tools/
-│   └── stockLot.tools.ts        # MCP tool definitions and handlers
+│   ├── stockLot.tools.ts        # Stock lot MCP tool definitions and handlers
+│   ├── stockMovement.tools.ts   # Stock movement MCP tool definitions
+│   ├── supplier.tools.ts        # Supplier MCP tool definitions and handlers
+│   └── customer.tools.ts        # Customer MCP tool definitions and handlers
 ├── services/
-│   └── stockLot.service.ts      # Domain business logic and validation
+│   ├── stockLot.service.ts      # Stock lot domain business logic
+│   ├── stockMovement.service.ts # Stock movement domain business logic
+│   ├── supplier.service.ts      # Supplier domain business logic
+│   └── customer.service.ts      # Customer domain business logic
 ├── repositories/
-│   └── stockLot.repository.ts   # Prisma data access layer
+│   ├── stockLot.repository.ts   # Stock lot Prisma data access
+│   ├── stockMovement.repository.ts # Stock movement Prisma data access
+│   ├── supplier.repository.ts   # Supplier Prisma data access
+│   └── customer.repository.ts   # Customer Prisma data access
 ├── types/
-│   └── stockLot.types.ts        # TypeScript domain and relation types
+│   ├── stockLot.types.ts        # Stock lot TypeScript domain types
+│   ├── stockMovement.types.ts   # Stock movement TypeScript domain types
+│   ├── supplier.types.ts        # Supplier TypeScript domain types
+│   └── customer.types.ts        # Customer TypeScript domain types
 └── utils/
-    └── stockLot.validation.ts   # Zod input validation schemas
+    ├── stockLot.validation.ts   # Stock lot Zod validation schemas
+    ├── stockMovement.validation.ts # Stock movement Zod validation schemas
+    ├── supplier.validation.ts   # Supplier Zod validation schemas
+    └── customer.validation.ts   # Customer Zod validation schemas
 ```
 
 ## Available MCP Tools
@@ -47,6 +62,15 @@ src/
 - `update_supplier` — Update an existing supplier profile and contact details.
 - `set_supplier_status` — Activate or deactivate a supplier (soft deletion).
 - `get_supplier_statement` — Retrieve comprehensive supplier statement with purchases, expenses, and payable balance.
+
+### Customer Management Tools
+- `create_customer` — Create a new customer with contact, company, and credit-limit details.
+- `get_customer` — Retrieve detailed profile information for a customer by ID.
+- `list_customers` — List customers with optional search filtering and pagination.
+- `update_customer` — Update an existing customer profile and contact details.
+- `set_customer_status` — Activate or deactivate a customer (soft deletion).
+- `get_customer_summary` — Get total sales, payments, and outstanding receivable balance for a customer.
+- `get_customer_statement` — Retrieve comprehensive customer statement with sales, payments, and receivable balance.
 
 - `ping` — Health check tool.
 
