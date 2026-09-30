@@ -16,7 +16,7 @@ This document serves as the single source of truth for the progressive developme
 | :--- | :--- | :--- |
 | **Phase 1** | Foundation & Stock Lot Management | **COMPLETED** |
 | **Phase 2** | Stock Movement Management | **COMPLETED** |
-| **Phase 3** | Supplier Management | **PENDING** |
+| **Phase 3** | Supplier Management | **COMPLETED** |
 | **Phase 4** | Customer Management | **PENDING** |
 | **Phase 5** | Purchase Management | **PENDING** |
 | **Phase 6** | Sales Management | **PENDING** |
