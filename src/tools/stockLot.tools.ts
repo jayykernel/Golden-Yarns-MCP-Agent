@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { StockLotService } from '../services/stockLot.service';
-import { createStockLotSchema, getStockLotSchema, getStockLotsSchema, updateStockLotSchema, deleteStockLotSchema } from '../utils/stockLot.validation';
+import { createStockLotSchema, getStockLotSchema, getStockLotsSchema, updateStockLotSchema, deleteStockLotSchema, getAvailableStockSchema } from '../utils/stockLot.validation';
 
 // Initialize service
 const stockLotService = new StockLotService();
@@ -334,6 +334,78 @@ export const stockLotTools = {
               text: JSON.stringify({
                 success: true,
                 message: result.message
+              }, null, 2)
+            }
+          ]
+        };
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  success: false,
+                  message: 'Validation failed',
+                  errors: error.errors
+                }, null, 2)
+              }
+            ],
+            isError: true
+          };
+        }
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                message: 'Internal server error'
+              }, null, 2)
+            }
+          ],
+          isError: true
+        };
+      }
+    }
+  },
+
+  getAvailableStock: {
+    name: 'get_available_stock',
+    description: 'Get available stock (IN_STOCK or RESERVED) with summary information',
+    inputSchema: getAvailableStockSchema.shape,
+    handler: async (args: z.infer<typeof getAvailableStockSchema>) => {
+      try {
+        // Validate input
+        const validatedArgs = getAvailableStockSchema.parse(args);
+
+        // Get available stock
+        const result = await stockLotService.getAvailableStock(validatedArgs);
+
+        if (!result.success) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  success: false,
+                  message: result.message
+                }, null, 2)
+              }
+            ],
+            isError: true
+          };
+        }
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                message: result.message,
+                data: result.data
               }, null, 2)
             }
           ]
