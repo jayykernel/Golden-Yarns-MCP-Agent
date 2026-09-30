@@ -5,6 +5,7 @@ import {
   getCustomerSchema,
   listCustomersSchema,
   updateCustomerSchema,
+  setCustomerStatusSchema,
 } from '../utils/customer.validation';
 
 const customerService = new CustomerService();
@@ -120,6 +121,40 @@ export const customerManagementTools = {
       try {
         const validatedData = updateCustomerSchema.parse(args);
         const result = await customerService.updateCustomer(validatedData);
+
+        if (!result.success) {
+          return {
+            content: [{ type: 'text', text: JSON.stringify({ success: false, message: result.message }, null, 2) }],
+            isError: true,
+          };
+        }
+
+        return {
+          content: [{ type: 'text', text: JSON.stringify({ success: true, message: result.message, data: result.data }, null, 2) }],
+        };
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return {
+            content: [{ type: 'text', text: JSON.stringify({ success: false, message: 'Validation failed', errors: error.errors }, null, 2) }],
+            isError: true,
+          };
+        }
+        return {
+          content: [{ type: 'text', text: JSON.stringify({ success: false, message: 'Internal server error' }, null, 2) }],
+          isError: true,
+        };
+      }
+    },
+  },
+
+  setCustomerStatus: {
+    name: 'set_customer_status',
+    description: 'Activate or deactivate a customer',
+    inputSchema: setCustomerStatusSchema.shape,
+    handler: async (args: z.infer<typeof setCustomerStatusSchema>) => {
+      try {
+        const validatedArgs = setCustomerStatusSchema.parse(args);
+        const result = await customerService.setCustomerStatus(validatedArgs.id, validatedArgs.isActive);
 
         if (!result.success) {
           return {
