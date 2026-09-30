@@ -137,12 +137,14 @@ model StockMovement {
 model Customer {
   id           Int      @id @default(autoincrement())
   name         String
+  company      String?
   contactPerson String?
   email        String?
   phone        String?
   address      String?
   taxId        String?  // For tax purposes
   creditLimit  Decimal? // Credit limit for the customer
+  isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -211,16 +213,18 @@ model Payment {
   saleId      Int?     // If payment is for a sale (customer payment)
   supplierId  Int?     // If payment is to a supplier
   expenseId   Int?     // If payment is for an expense
+  customerId  Int?     // Direct customer reference
 
   // Relations
   sale        Sale?    @relation("SalePayments", fields: [saleId], references: [id])
   supplier    Supplier? @relation("SupplierPayments", fields: [supplierId], references: [id])
   expense     Expense?  @relation("ExpensePayments", fields: [expenseId], references: [id])
-  customer    Customer? @relation("CustomerPayments", fields: [saleId], references: [id]) // For customer payments via sale
+  customer    Customer? @relation("CustomerPayments", fields: [customerId], references: [id]) // For customer payments
 
   @@index([saleId])
   @@index([supplierId])
   @@index([expenseId])
+  @@index([customerId])
   @@index([paymentDate])
   @@index([status])
 }
