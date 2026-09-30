@@ -245,3 +245,20 @@ model Expense {
   @@index([category])
   @@index([status])
 }
+
+// Financial Transaction - for general ledger purposes (optional, can be derived)
+model FinancialTransaction {
+  id          Int      @id @default(autoincrement())
+  amount      Decimal
+  transactionDate DateTime @default(now())
+  type        String   // "INCOME" or "EXPENSE"
+  category    String   // e.g., "SALES", "PURCHASE", "EXPENSE"
+  referenceId String?  // Reference to source document (sale id, expense id, etc.)
+  referenceType String? // e.g., "SALE", "EXPENSE", "PURCHASE"
+  description String?
+  createdAt   DateTime @default(now())
+
+  @@index([transactionDate])
+  @@index([type, category])
+  @@index([referenceType, referenceId])
+}
