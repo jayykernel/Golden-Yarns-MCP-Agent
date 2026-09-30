@@ -32,6 +32,7 @@ export interface UpdateCustomerInput {
 
 export interface GetCustomersFilter {
   search?: string;
+  isActive?: boolean;
   skip?: number;
   take?: number;
 }

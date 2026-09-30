@@ -84,10 +84,14 @@ export class CustomerRepository {
   }
 
   /**
-   * Get all customers matching optional search and pagination
+   * Get all customers matching optional search, status and pagination
    */
   async getCustomers(filters: GetCustomersFilter = {}): Promise<Customer[]> {
     const where: any = {};
+
+    if (filters.isActive !== undefined) {
+      where.isActive = filters.isActive;
+    }
 
     if (filters.search) {
       where.OR = [
@@ -113,6 +117,10 @@ export class CustomerRepository {
    */
   async getCustomerCount(filters: GetCustomersFilter = {}): Promise<number> {
     const where: any = {};
+
+    if (filters.isActive !== undefined) {
+      where.isActive = filters.isActive;
+    }
 
     if (filters.search) {
       where.OR = [
