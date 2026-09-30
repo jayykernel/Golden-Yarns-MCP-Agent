@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { StockLotService } from '../services/stockLot.service';
-import { createStockLotSchema, getStockLotSchema, getStockLotsSchema } from '../utils/stockLot.validation';
+import { createStockLotSchema, getStockLotSchema, getStockLotsSchema, updateStockLotSchema, deleteStockLotSchema } from '../utils/stockLot.validation';
 
 // Initialize service
 const stockLotService = new StockLotService();
@@ -95,14 +95,14 @@ export const stockLotTools = {
           result = await stockLotService.getStockLotByLotNumber(validatedArgs.lotNumber);
         }
 
-        if (!result.success) {
+        if (!result || !result.success) {
           return {
             content: [
               {
                 type: 'text',
                 text: JSON.stringify({
                   success: false,
-                  message: result.message
+                  message: result ? result.message : 'Not found'
                 }, null, 2)
               }
             ],
@@ -191,6 +191,149 @@ export const stockLotTools = {
                 message: result.message,
                 data: result.data,
                 count: result.count
+              }, null, 2)
+            }
+          ]
+        };
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  success: false,
+                  message: 'Validation failed',
+                  errors: error.errors
+                }, null, 2)
+              }
+            ],
+            isError: true
+          };
+        }
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                message: 'Internal server error'
+              }, null, 2)
+            }
+          ],
+          isError: true
+        };
+      }
+    }
+  },
+
+  updateStockLot: {
+    name: 'update_stock_lot',
+    description: 'Update an existing stock lot',
+    inputSchema: updateStockLotSchema.shape,
+    handler: async (args: z.infer<typeof updateStockLotSchema>) => {
+      try {
+        // Validate input
+        const validatedData = updateStockLotSchema.parse(args);
+
+        // Update stock lot
+        const result = await stockLotService.updateStockLot(validatedData.id, validatedData);
+
+        if (!result.success) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  success: false,
+                  message: result.message
+                }, null, 2)
+              }
+            ],
+            isError: true
+          };
+        }
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                message: result.message,
+                data: result.data
+              }, null, 2)
+            }
+          ]
+        };
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  success: false,
+                  message: 'Validation failed',
+                  errors: error.errors
+                }, null, 2)
+              }
+            ],
+            isError: true
+          };
+        }
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: false,
+                message: 'Internal server error'
+              }, null, 2)
+            }
+          ],
+          isError: true
+        };
+      }
+    }
+  },
+
+  deleteStockLot: {
+    name: 'delete_stock_lot',
+    description: 'Delete a stock lot (soft delete by setting status to INACTIVE)',
+    inputSchema: deleteStockLotSchema.shape,
+    handler: async (args: z.infer<typeof deleteStockLotSchema>) => {
+      try {
+        // Validate input
+        const validatedArgs = deleteStockLotSchema.parse(args);
+
+        // Delete stock lot
+        const result = await stockLotService.deleteStockLot(validatedArgs.id);
+
+        if (!result.success) {
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  success: false,
+                  message: result.message
+                }, null, 2)
+              }
+            ],
+            isError: true
+          };
+        }
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify({
+                success: true,
+                message: result.message
               }, null, 2)
             }
           ]
