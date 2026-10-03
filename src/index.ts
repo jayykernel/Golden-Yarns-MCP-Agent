@@ -11,8 +11,9 @@ import { allStockMovementTools } from './tools/stockMovement.tools';
 import { allSupplierTools } from './tools/supplier.tools';
 import { allCustomerTools } from './tools/customer.tools';
 import { allPurchaseTools } from './tools/purchase.tools';
+import { allSalesTools } from './tools/sales.tools';
 
-const allTools = [...allStockLotTools, ...allStockMovementTools, ...allSupplierTools, ...allCustomerTools, ...allPurchaseTools];
+const allTools = [...allStockLotTools, ...allStockMovementTools, ...allSupplierTools, ...allCustomerTools, ...allPurchaseTools, ...allSalesTools];
 
 // Create the MCP server
 const server = new Server(
