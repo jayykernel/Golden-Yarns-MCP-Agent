@@ -72,6 +72,11 @@ src/
 - `get_customer_summary` — Get total sales, payments, and outstanding receivable balance for a customer.
 - `get_customer_statement` — Retrieve comprehensive customer statement with sales, payments, and receivable balance.
 
+### Purchase Management Tools
+- `create_purchase` — Create a new purchase order with lot details, automatically generating stock lots and recording Stock IN movements.
+- `get_purchase` — Retrieve detailed information for a purchase by ID.
+- `list_purchases` — List purchases with optional filtering by supplier, status, and date range.
+
 - `ping` — Health check tool.
 
 ## Getting Started

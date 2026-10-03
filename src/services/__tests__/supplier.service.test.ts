@@ -89,9 +89,9 @@ describe('SupplierService', () => {
     it('should calculate financial summary properly', async () => {
       mockSupplierRepo.getSupplierWithRelations = async () => ({
         ...sampleSupplier,
-        purchaseLots: [
-          { id: 1, purchaseCost: 1000.0, netWeight: 100, purchaseDate: new Date(), lotNumber: 'L1', grossWeight: 110, currentStatus: 'IN_STOCK', notes: 'lot1' },
-          { id: 2, purchaseCost: 500.0, netWeight: 50, purchaseDate: new Date(), lotNumber: 'L2', grossWeight: 55, currentStatus: 'IN_STOCK', notes: 'lot2' },
+        purchases: [
+          { id: 1, totalAmount: 1000.0, purchaseDate: new Date(), status: 'RECEIVED', notes: 'lot1' },
+          { id: 2, totalAmount: 500.0, purchaseDate: new Date(), status: 'RECEIVED', notes: 'lot2' },
         ],
         suppliedExpenses: [
           { id: 1, amount: 200.0, expenseDate: new Date(), category: 'TRANSPORT', status: 'PAID', description: 'exp1', notes: 'exp1' },
