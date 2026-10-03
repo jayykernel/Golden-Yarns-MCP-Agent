@@ -1,8 +1,9 @@
-import { Prisma, Supplier, StockLot, Payment, Expense } from '@prisma/client';
+import { Prisma, Supplier, StockLot, Payment, Expense, Purchase } from '@prisma/client';
 
 export type SupplierWithRelations = Prisma.SupplierGetPayload<{
   include: {
-    purchaseLots: true;
+    stockLots: true;
+    purchases: true;
     supplierPayments: true;
     suppliedExpenses: true;
   };
