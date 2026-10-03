@@ -66,7 +66,8 @@ model Supplier {
   updatedAt     DateTime @updatedAt
 
   // Relations
-  purchaseLots  StockLot[] @relation("PurchaseLots")
+  stockLots     StockLot[] @relation("SupplierStockLots")
+  purchases     Purchase[] @relation("SupplierPurchases")
   supplierPayments Payment[] @relation("SupplierPayments") // Payments to supplier
   suppliedExpenses Expense[] @relation("ExpenseSupplier") // Expenses payable to supplier
 
@@ -99,12 +100,13 @@ model StockLot {
   yarnType    YarnType    @relation(fields: [yarnTypeId], references: [id])
   yarnCount   YarnCount   @relation(fields: [yarnCountId], references: [id])
   color       Color       @relation(fields: [colorId], references: [id])
-  supplier    Supplier?   @relation("PurchaseLots", fields: [supplierId], references: [id])
+  supplier    Supplier?   @relation("SupplierStockLots", fields: [supplierId], references: [id])
   supplierId  Int?
 
   // Stock movements tracking
   movements   StockMovement[] @relation("LotMovements")
   saleItems   SaleItem[] @relation("SaleItemLot")
+  purchaseItems PurchaseItem[] @relation("PurchaseItemLots")
 
   @@index([lotNumber])
   @@index([yarnTypeId, yarnCountId, colorId])
@@ -153,6 +155,44 @@ model Customer {
   payments     Payment[] @relation("CustomerPayments")
 
   @@index([name])
+}
+
+// Purchase Order
+model Purchase {
+  id            Int      @id @default(autoincrement())
+  supplierId    Int
+  purchaseDate  DateTime @default(now())
+  totalAmount   Decimal  // Total purchase amount
+  status        String   @default("PENDING") // PENDING, RECEIVED, CANCELLED
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  supplier  Supplier @relation("SupplierPurchases", fields: [supplierId], references: [id])
+  items     PurchaseItem[] @relation("PurchaseItems")
+
+  @@index([supplierId])
+  @@index([purchaseDate])
+  @@index([status])
+}
+
+// Purchase Item - line items in a purchase order
+model PurchaseItem {
+  id         Int      @id @default(autoincrement())
+  purchaseId Int
+  lotId      Int      // Which stock lot was purchased (generated)
+  quantity   Float    // Quantity purchased (in kg or units)
+  unitCost   Decimal  // Cost per unit
+  totalCost  Decimal  // Quantity * unitCost
+  notes      String?
+
+  // Relations
+  purchase Purchase @relation("PurchaseItems", fields: [purchaseId], references: [id])
+  lot      StockLot @relation("PurchaseItemLots", fields: [lotId], references: [id])
+
+  @@index([purchaseId])
+  @@index([lotId])
 }
 
 // Sale / Invoice
