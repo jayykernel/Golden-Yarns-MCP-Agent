@@ -73,7 +73,7 @@ export class SupplierRepository {
     return prisma.supplier.findUnique({
       where: { id },
       include: {
-        purchaseLots: {
+        stockLots: {
           where: lotWhere,
           orderBy: { purchaseDate: 'desc' },
         },
@@ -85,6 +85,9 @@ export class SupplierRepository {
           where: expenseWhere,
           orderBy: { expenseDate: 'desc' },
         },
+        purchases: {
+          orderBy: { purchaseDate: 'desc' },
+        },
       },
     });
   }
@@ -94,6 +97,7 @@ export class SupplierRepository {
    */
   async getSuppliers(filters: GetSuppliersFilter = {}): Promise<Supplier[]> {
     const where: any = {};
+
     if (filters.isActive !== undefined) {
       where.isActive = filters.isActive;
     }
@@ -101,6 +105,7 @@ export class SupplierRepository {
     if (filters.search) {
       where.OR = [
         { name: { contains: filters.search } },
+        { company: { contains: filters.search } },
         { contactPerson: { contains: filters.search } },
         { phone: { contains: filters.search } },
         { email: { contains: filters.search } },
@@ -121,6 +126,7 @@ export class SupplierRepository {
    */
   async getSupplierCount(filters: GetSuppliersFilter = {}): Promise<number> {
     const where: any = {};
+
     if (filters.isActive !== undefined) {
       where.isActive = filters.isActive;
     }
@@ -128,6 +134,7 @@ export class SupplierRepository {
     if (filters.search) {
       where.OR = [
         { name: { contains: filters.search } },
+        { company: { contains: filters.search } },
         { contactPerson: { contains: filters.search } },
         { phone: { contains: filters.search } },
         { email: { contains: filters.search } },
@@ -141,7 +148,7 @@ export class SupplierRepository {
   /**
    * Update supplier details
    */
-  async updateSupplier(id: number, data: Partial<CreateSupplierInput>): Promise<Supplier> {
+  async updateSupplier(id: number, data: UpdateSupplierInput): Promise<Supplier> {
     return prisma.supplier.update({
       where: { id },
       data,
