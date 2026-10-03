@@ -168,7 +168,9 @@ export class SupplierService {
         }
       }
 
-      const updateData: Partial<CreateSupplierInput> = {};
+      const updateData: UpdateSupplierInput = {
+        id: input.id,
+      };
       if (input.name !== undefined) updateData.name = input.name.trim();
       if (input.contactPerson !== undefined) updateData.contactPerson = input.contactPerson.trim() || undefined;
       if (input.email !== undefined) updateData.email = input.email.trim() || undefined;
@@ -291,8 +293,8 @@ export class SupplierService {
       }
 
       // Calculate total purchases
-      const totalPurchases = supplier.purchaseLots.reduce(
-        (sum, lot) => sum + Number(lot.purchaseCost),
+      const totalPurchases = (supplier.purchases || []).reduce(
+        (sum, purchase) => sum + Number(purchase.totalAmount),
         0
       );
 
@@ -340,15 +342,15 @@ export class SupplierService {
           updatedAt: supplier.updatedAt,
         },
         summary,
-        purchases: supplier.purchaseLots.map((lot) => ({
-          id: lot.id,
-          lotNumber: lot.lotNumber,
-          purchaseDate: lot.purchaseDate,
-          netWeight: lot.netWeight,
-          grossWeight: lot.grossWeight,
-          purchaseCost: Number(lot.purchaseCost),
-          currentStatus: lot.currentStatus,
-          notes: lot.notes,
+        purchases: supplier.purchases.map((purchase) => ({
+          id: purchase.id,
+          lotNumber: `PUR-${purchase.id}`,
+          purchaseDate: purchase.purchaseDate,
+          netWeight: 0, // Not directly available on Purchase
+          grossWeight: 0,
+          purchaseCost: Number(purchase.totalAmount),
+          currentStatus: purchase.status,
+          notes: purchase.notes,
         })),
         expenses: supplier.suppliedExpenses.map((exp) => ({
           id: exp.id,
