@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { SaleService } from '../services/sales.service';
 import { createSaleSchema, listSalesSchema, getSaleSchema } from '../utils/sales.validation';
 
@@ -185,3 +186,5 @@ export const salesTools = {
     },
   },
 };
+
+export const allSalesTools = Object.values(salesTools);

@@ -19,7 +19,7 @@ This document serves as the single source of truth for the progressive developme
 | **Phase 3** | Supplier Management | **COMPLETED** |
 | **Phase 4** | Customer Management | **COMPLETED** |
 | **Phase 5** | Purchase Management | **COMPLETED** |
-| **Phase 6** | Sales Management | **IN_PROGRESS** |
+| **Phase 6** | Sales Management | **COMPLETED** |
 | **Phase 7** | Billing and Invoicing | **PENDING** |
 | **Phase 8** | Payment Management | **PENDING** |
 | **Phase 9** | Expense Management | **PENDING** |

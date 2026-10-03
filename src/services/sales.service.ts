@@ -189,8 +189,12 @@ export class SaleService {
   /**
    * Update an existing sale
    */
-  async updateSale(input: DomainUpdateSaleInput) {
+  async updateSale(input: DomainUpdateSaleInput & { id: number }) {
     try {
+      if (!input.id || input.id <= 0) {
+        return { success: false, message: 'Invalid sale ID' };
+      }
+
       // Verify existence
       const existingSale = await this.saleRepository.getSaleById(input.id);
       if (!existingSale) {
@@ -252,7 +256,7 @@ export class SaleService {
             lotId: item.lotId,
             movementType: 'IN',
             quantity: item.quantity,
-            referenceType: 'SALE_RETURN',
+            referenceType: 'RETURN',
             referenceId: `${id}`,
             notes: `Sale cancelled. Reversing Sale ID: ${id}`,
           })

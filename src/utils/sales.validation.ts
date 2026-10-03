@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { createCustomerSchema, updateCustomerSchema } from './customer.validation';
 
 // Schema for creating a sale
 export const createSaleSchema = z.object({
@@ -13,13 +12,13 @@ export const createSaleSchema = z.object({
       })
     )
     .nonempty('At least one lot detail is required'),
-  saleDate: z.date().optional(),
+  saleDate: z.coerce.date().optional(),
   notes: z.string().optional(),
 });
 
 // Schema for updating a sale
 export const updateSaleSchema = z.object({
-  saleDate: z.date().optional(),
+  saleDate: z.coerce.date().optional(),
   notes: z.string().optional(),
   status: z
     .enum(['PENDING', 'PAID', 'PARTIAL', 'OVERDUE', 'CANCELLED'])
@@ -30,8 +29,8 @@ export const updateSaleSchema = z.object({
 export const listSalesSchema = z.object({
   customerId: z.number().int().positive().optional(),
   status: z.enum(['PENDING', 'PAID', 'PARTIAL', 'OVERDUE', 'CANCELLED']).optional(),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
+  startDate: z.coerce.date().optional(),
+  endDate: z.coerce.date().optional(),
 });
 
 // Schema for getting a sale by ID

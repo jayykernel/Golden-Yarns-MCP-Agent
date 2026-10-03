@@ -77,6 +77,12 @@ src/
 - `get_purchase` — Retrieve detailed information for a purchase by ID.
 - `list_purchases` — List purchases with optional filtering by supplier, status, and date range.
 
+### Sales Management Tools
+- `create_sale` — Create a new sale order with selected stock lots, deduct inventory, and record Stock OUT movements.
+- `get_sale` — Retrieve detailed information for a sale by ID.
+- `list_sales` — List sales with optional filtering by customer, status, and date range.
+- `cancel_sale` — Cancel an existing sale order and restore stock by recording reverse Stock IN movements.
+
 - `ping` — Health check tool.
 
 ## Getting Started

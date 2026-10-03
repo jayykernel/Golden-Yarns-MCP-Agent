@@ -1,4 +1,4 @@
-import { Customer } from './customer.types';
+import { Customer } from '@prisma/client';
 
 // Sale input for creating sales orders
 export interface SaleInput {
@@ -10,6 +10,7 @@ export interface SaleInput {
 
 // Update sale input
 export interface UpdateSaleInput {
+  id?: number;
   saleDate?: Date;
   notes?: string;
   status?: string;
